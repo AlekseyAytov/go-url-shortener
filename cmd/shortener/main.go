@@ -19,9 +19,11 @@ func main() {
 func mainPage(res http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case http.MethodPost:
-		res.Header().Set("content-type", "text/plain")
 		body, _ := io.ReadAll(req.Body)
 		fmt.Println(string(body))
+
+		// res.Header().Set("Content-Type", "text/plain")
+		res.WriteHeader(http.StatusOK)
 	default:
 		res.WriteHeader(http.StatusBadRequest)
 	}
