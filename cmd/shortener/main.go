@@ -8,13 +8,9 @@ import (
 
 func main() {
 	v := app.GetVault()
-	hctx := app.NewHandlerContext(v)
+	api := app.NewShortenerAPI(v)
 
-	mux := http.NewServeMux()
-	// mux.HandleFunc(`/`, app.Logging(os.Stdout, mainPage))
-	mux.HandleFunc(`/`, hctx.MainHandler)
-
-	err := http.ListenAndServe(`:8080`, mux)
+	err := http.ListenAndServe(`:8080`, api.Router())
 	if err != nil {
 		panic(err)
 	}

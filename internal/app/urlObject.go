@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"math/rand/v2"
 	"net/url"
 )
@@ -12,21 +13,20 @@ type URLObject struct {
 
 const allowedSimbols = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
 
+// NewURLObject create a URLObject with BaseURL=s and generate ShortURL
 func NewURLObject(s string) (*URLObject, error) {
-	res := URLObject{}
-
-	_, err := url.Parse(s)
-	if err != nil {
-		return &res, err
+	u, err := url.Parse(s)
+	if err != nil || u.Host == "" || u.Scheme == "" {
+		return nil, fmt.Errorf("error validate url")
 	}
-
+	res := URLObject{}
 	res.BaseURL = s
-	res.GenerateShortURL(7)
+	res.generateShortURL(7)
 
 	return &res, nil
 }
 
-func (u *URLObject) GenerateShortURL(length int) {
+func (u *URLObject) generateShortURL(length int) {
 	if u.BaseURL == "" {
 		return
 	}

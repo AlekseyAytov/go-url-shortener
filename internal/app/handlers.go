@@ -1,56 +1,76 @@
 package app
 
 import (
-	"fmt"
+	"errors"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/gorilla/mux"
 )
 
-type HandlerContext struct {
-	vault *Vault
+var NotFoundValue = errors.New("Value not found")
+
+type ShortenerAPI struct {
+	vault  *Vault
+	router *mux.Router
 }
 
-// NewHandlerContext constructs a new HandlerContext,
+// NewShortenerAPI constructs a new ShortenerAPI,
 // ensuring that the dependencies are valid values
-func NewHandlerContext(v *Vault) *HandlerContext {
+func NewShortenerAPI(v *Vault) *ShortenerAPI {
 	if v == nil {
-		panic("nil MongoDB session!")
+		panic("nil Vault!")
 	}
-	return &HandlerContext{
-		vault: v,
+	api := ShortenerAPI{
+		vault:  v,
+		router: mux.NewRouter(),
 	}
+	api.endpoints()
+	return &api
 }
 
-func (ctx *HandlerContext) MainHandler(res http.ResponseWriter, req *http.Request) {
-	switch req.Method {
-	case http.MethodPost:
-		body, _ := io.ReadAll(req.Body)
-		long := string(body)
-		obj, err := NewURLObject(long)
-		if err != nil {
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
+func (sh *ShortenerAPI) Router() *mux.Router {
+	return sh.router
+}
 
-		ctx.vault.Add(*obj)
+func (sh *ShortenerAPI) endpoints() {
+	// sh.router.Use(Logging)
+	sh.router.HandleFunc("/{id}", sh.originalURL).Methods(http.MethodGet)
+	sh.router.HandleFunc("/", sh.shortURL).Methods(http.MethodPost)
+}
 
-		ans := "http://" + req.Host + "/" + obj.ShortURL
-		res.Header().Set("Content-Type", "text/plain")
-		res.WriteHeader(http.StatusCreated)
-		res.Write([]byte(ans))
-	case http.MethodGet:
-		id := req.URL.Path
-		id = strings.TrimLeft(id, "/")
-		u, ok := ctx.vault.Find(id, func(u URLObject, s string) bool {
-			return strings.Contains(u.ShortURL, s)
-		})
-		if ok {
-			fmt.Println(u.BaseURL)
-			res.Header().Set("Location", u.BaseURL)
-			res.WriteHeader(http.StatusTemporaryRedirect)
-		}
-	default:
-		res.WriteHeader(http.StatusBadRequest)
+func (sh *ShortenerAPI) shortURL(res http.ResponseWriter, req *http.Request) {
+	body, _ := io.ReadAll(req.Body)
+	long := string(body)
+	obj, err := NewURLObject(long)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	sh.vault.Add(*obj)
+
+	ans := "http://" + req.Host + "/" + obj.ShortURL
+	res.Header().Set("Content-Type", "text/plain")
+	res.WriteHeader(http.StatusCreated)
+	res.Write([]byte(ans))
+}
+
+func (sh *ShortenerAPI) originalURL(res http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	id, ok := vars["id"]
+	if !ok {
+		http.Error(res, NotFoundValue.Error(), http.StatusInternalServerError)
+	}
+
+	u, ok := sh.vault.Find(id, func(u URLObject, s string) bool {
+		return strings.Contains(u.ShortURL, s)
+	})
+	if ok {
+		res.Header().Set("Location", u.BaseURL)
+		res.WriteHeader(http.StatusTemporaryRedirect)
+	} else {
+		http.Error(res, NotFoundValue.Error(), http.StatusInternalServerError)
 	}
 }
