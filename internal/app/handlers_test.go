@@ -65,13 +65,16 @@ func TestShortenerAPI_shortURL(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// Подготовка входных данных для запроса
 			reqBody := strings.NewReader(tt.requestBody)
 			request := httptest.NewRequest(tt.requestMethod, tt.requestPath, reqBody)
+			// Создание записи для ответа HTTP
 			w := httptest.NewRecorder()
+			// Обработка запроса
 			api.Router().ServeHTTP(w, request)
 
 			res := w.Result()
-
+			defer res.Body.Close()
 			// проверка статус кода
 			assert.Equal(t, tt.want.code, res.StatusCode)
 
@@ -79,6 +82,7 @@ func TestShortenerAPI_shortURL(t *testing.T) {
 			assert.Contains(t, res.Header.Get("Content-Type"), tt.want.contentType)
 
 			// проверка тела ответа
+
 			resBody, err := io.ReadAll(res.Body)
 			require.NoError(t, err)
 			assert.Contains(t, string(resBody), tt.want.response)
@@ -136,12 +140,15 @@ func TestShortenerAPI_originalURL(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// Подготовка входных данных для запроса
 			request := httptest.NewRequest(tt.requestMethod, tt.requestPath, nil)
+			// Создание записи для ответа HTTP
 			w := httptest.NewRecorder()
+			// Обработка запроса
 			api.Router().ServeHTTP(w, request)
 
 			res := w.Result()
-
+			defer res.Body.Close()
 			// проверка статус кода
 			assert.Equal(t, tt.want.code, res.StatusCode)
 			// проверка заголовка

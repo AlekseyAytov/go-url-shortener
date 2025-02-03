@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var NotFoundValue = errors.New("Value not found")
+var ErrNotFoundValue = errors.New("value not found")
 
 type ShortenerAPI struct {
 	vault  *Vault
@@ -61,7 +61,7 @@ func (sh *ShortenerAPI) originalURL(res http.ResponseWriter, req *http.Request) 
 	vars := mux.Vars(req)
 	id, ok := vars["id"]
 	if !ok {
-		http.Error(res, NotFoundValue.Error(), http.StatusInternalServerError)
+		http.Error(res, ErrNotFoundValue.Error(), http.StatusInternalServerError)
 	}
 
 	u, ok := sh.vault.Find(id, func(u URLObject, s string) bool {
@@ -71,6 +71,6 @@ func (sh *ShortenerAPI) originalURL(res http.ResponseWriter, req *http.Request) 
 		res.Header().Set("Location", u.BaseURL)
 		res.WriteHeader(http.StatusTemporaryRedirect)
 	} else {
-		http.Error(res, NotFoundValue.Error(), http.StatusInternalServerError)
+		http.Error(res, ErrNotFoundValue.Error(), http.StatusInternalServerError)
 	}
 }
