@@ -22,7 +22,7 @@ func LoadOptions() *Options {
 	}
 
 	srvAdressFlag := flag.String("a", ":8080", "server socket")
-	baseURLflag := flag.String("b", "localhost:8080", "base address")
+	baseURLflag := flag.String("b", "http://localhost:8080", "base address")
 	flag.Parse()
 
 	if cfg.SrvAdress == "" {
