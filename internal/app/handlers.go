@@ -54,7 +54,9 @@ func (sh *ShortenerAPI) shortURL(res http.ResponseWriter, req *http.Request) {
 	sh.vault.Add(*obj)
 
 	// ans := "http://" + req.Host + "/" + obj.ShortURL
-	ans := "http://" + sh.base + "/" + obj.ShortURL
+
+	// TODO: доделать реализацию, она не проходит тест
+	ans := sh.base + "/" + obj.ShortURL
 	res.Header().Set("Content-Type", "text/plain")
 	res.WriteHeader(http.StatusCreated)
 	res.Write([]byte(ans))
