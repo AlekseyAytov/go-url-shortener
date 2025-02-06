@@ -1,16 +1,41 @@
 package config
 
-import "flag"
+import (
+	"flag"
+	"log"
+
+	"github.com/caarlos0/env/v11"
+)
 
 type Options struct {
-	SrvAdress string
-	BaseURL   string
+	SrvAdress string `env:"SERVER_ADDRESS"`
+	BaseURL   string `env:"BASE_URL"`
 }
 
 func LoadOptions() *Options {
-	res := Options{}
-	flag.StringVar(&res.SrvAdress, "a", ":8080", "server socket")
-	flag.StringVar(&res.BaseURL, "b", "localhost:8080", "base address")
+	cfg := Options{}
+
+	err := env.Parse(&cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	srvAdressFlag := flag.String("a", ":8080", "server socket")
+	baseURLflag := flag.String("b", "http://localhost:8080", "base address")
 	flag.Parse()
-	return &res
+
+	if cfg.SrvAdress == "" {
+		cfg.SrvAdress = *srvAdressFlag
+	}
+
+	if cfg.BaseURL == "" {
+		cfg.BaseURL = *baseURLflag
+	}
+
+	// u, err := url.Parse(cfg.BaseURL)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// cfg.BaseURL = u.Host
+	return &cfg
 }
