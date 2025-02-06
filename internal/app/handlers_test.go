@@ -15,7 +15,7 @@ var api *ShortenerAPI
 
 func TestMain(m *testing.M) {
 	v := GetVault()
-	api = NewShortenerAPI(v)
+	api = NewShortenerAPI(v, "127.0.0.1")
 	m.Run()
 }
 
@@ -116,7 +116,7 @@ func TestShortenerAPI_originalURL(t *testing.T) {
 			requestMethod: http.MethodGet,
 			want: want{
 				code:     http.StatusTemporaryRedirect,
-				location: obj1.BaseURL,
+				location: obj1.OriginURL,
 			},
 		},
 		{
@@ -125,7 +125,7 @@ func TestShortenerAPI_originalURL(t *testing.T) {
 			requestMethod: http.MethodGet,
 			want: want{
 				code:     http.StatusTemporaryRedirect,
-				location: obj2.BaseURL,
+				location: obj2.OriginURL,
 			},
 		},
 		{

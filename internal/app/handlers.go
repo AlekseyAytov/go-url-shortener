@@ -14,17 +14,19 @@ var ErrNotFoundValue = errors.New("value not found")
 type ShortenerAPI struct {
 	vault  *Vault
 	router *mux.Router
+	base   string
 }
 
 // NewShortenerAPI constructs a new ShortenerAPI,
 // ensuring that the dependencies are valid values
-func NewShortenerAPI(v *Vault) *ShortenerAPI {
-	if v == nil {
+func NewShortenerAPI(v *Vault, b string) *ShortenerAPI {
+	if v == nil || b == "" {
 		panic("nil Vault!")
 	}
 	api := ShortenerAPI{
 		vault:  v,
 		router: mux.NewRouter(),
+		base:   b,
 	}
 	api.endpoints()
 	return &api
@@ -68,7 +70,7 @@ func (sh *ShortenerAPI) originalURL(res http.ResponseWriter, req *http.Request) 
 		return strings.Contains(u.ShortURL, s)
 	})
 	if ok {
-		res.Header().Set("Location", u.BaseURL)
+		res.Header().Set("Location", u.OriginURL)
 		res.WriteHeader(http.StatusTemporaryRedirect)
 	} else {
 		http.Error(res, ErrNotFoundValue.Error(), http.StatusInternalServerError)

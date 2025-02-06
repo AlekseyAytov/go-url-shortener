@@ -7,8 +7,8 @@ import (
 )
 
 type URLObject struct {
-	BaseURL  string
-	ShortURL string
+	OriginURL string
+	ShortURL  string
 }
 
 const allowedSimbols = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
@@ -20,14 +20,14 @@ func NewURLObject(s string) (*URLObject, error) {
 		return nil, fmt.Errorf("error validate url")
 	}
 	res := URLObject{}
-	res.BaseURL = s
+	res.OriginURL = s
 	res.generateShortURL(7)
 
 	return &res, nil
 }
 
 func (u *URLObject) generateShortURL(length int) {
-	if u.BaseURL == "" {
+	if u.OriginURL == "" {
 		return
 	}
 

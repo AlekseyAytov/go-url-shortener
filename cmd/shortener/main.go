@@ -4,13 +4,16 @@ import (
 	"net/http"
 
 	"github.com/AlekseyAytov/go-url-shortener/internal/app"
+	"github.com/AlekseyAytov/go-url-shortener/internal/config"
 )
 
 func main() {
-	v := app.GetVault()
-	api := app.NewShortenerAPI(v)
+	c := config.LoadOptions()
 
-	err := http.ListenAndServe(`:8080`, api.Router())
+	v := app.GetVault()
+	api := app.NewShortenerAPI(v, c.BaseURL)
+
+	err := http.ListenAndServe(c.SrvAdress, api.Router())
 	if err != nil {
 		panic(err)
 	}
