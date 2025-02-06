@@ -3,7 +3,6 @@ package config
 import (
 	"flag"
 	"log"
-	"net/url"
 
 	"github.com/caarlos0/env/v11"
 )
@@ -22,7 +21,7 @@ func LoadOptions() *Options {
 	}
 
 	srvAdressFlag := flag.String("a", ":8080", "server socket")
-	baseURLflag := flag.String("b", "localhost:8080", "base address")
+	baseURLflag := flag.String("b", "http://localhost:8080", "base address")
 	flag.Parse()
 
 	if cfg.SrvAdress == "" {
@@ -33,10 +32,10 @@ func LoadOptions() *Options {
 		cfg.BaseURL = *baseURLflag
 	}
 
-	u, err := url.Parse(cfg.BaseURL)
-	if err != nil {
-		log.Fatal(err)
-	}
-	cfg.BaseURL = u.Host
+	// u, err := url.Parse(cfg.BaseURL)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// cfg.BaseURL = u.Host
 	return &cfg
 }

@@ -15,7 +15,7 @@ var api *ShortenerAPI
 
 func TestMain(m *testing.M) {
 	v := GetVault()
-	api = NewShortenerAPI(v, "127.0.0.1")
+	api = NewShortenerAPI(v, "http://127.0.0.1")
 	m.Run()
 }
 
