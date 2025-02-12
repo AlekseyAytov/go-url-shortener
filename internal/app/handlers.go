@@ -15,11 +15,12 @@ type ShortenerAPI struct {
 	vault  *Vault
 	router *mux.Router
 	base   string
+	middls []func(http.Handler) http.Handler
 }
 
 // NewShortenerAPI constructs a new ShortenerAPI,
 // ensuring that the dependencies are valid values
-func NewShortenerAPI(v *Vault, b string) *ShortenerAPI {
+func NewShortenerAPI(v *Vault, b string, middleWares []func(http.Handler) http.Handler) *ShortenerAPI {
 	if v == nil || b == "" {
 		panic("nil Vault!")
 	}
@@ -27,6 +28,7 @@ func NewShortenerAPI(v *Vault, b string) *ShortenerAPI {
 		vault:  v,
 		router: mux.NewRouter(),
 		base:   b,
+		middls: middleWares,
 	}
 	api.endpoints()
 	return &api
@@ -37,7 +39,9 @@ func (sh *ShortenerAPI) Router() *mux.Router {
 }
 
 func (sh *ShortenerAPI) endpoints() {
-	// sh.router.Use(Logging)
+	for _, m := range sh.middls {
+		sh.router.Use(m)
+	}
 	sh.router.HandleFunc("/{id}", sh.originalURL).Methods(http.MethodGet)
 	sh.router.HandleFunc("/", sh.shortURL).Methods(http.MethodPost)
 }
@@ -52,10 +56,6 @@ func (sh *ShortenerAPI) shortURL(res http.ResponseWriter, req *http.Request) {
 	}
 
 	sh.vault.Add(*obj)
-
-	// ans := "http://" + req.Host + "/" + obj.ShortURL
-
-	// TODO: доделать реализацию, она не проходит тест
 	ans := sh.base + "/" + obj.ShortURL
 	res.Header().Set("Content-Type", "text/plain")
 	res.WriteHeader(http.StatusCreated)

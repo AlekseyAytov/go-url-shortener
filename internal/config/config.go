@@ -31,11 +31,5 @@ func LoadOptions() *Options {
 	if cfg.BaseURL == "" {
 		cfg.BaseURL = *baseURLflag
 	}
-
-	// u, err := url.Parse(cfg.BaseURL)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// cfg.BaseURL = u.Host
 	return &cfg
 }
