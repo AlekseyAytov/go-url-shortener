@@ -1,6 +1,7 @@
 package app
 
 import (
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -16,6 +17,14 @@ type ShortenerAPI struct {
 	router *mux.Router
 	base   string
 	middls []func(http.Handler) http.Handler
+}
+
+type _url struct {
+	URL string `json:"url"`
+}
+
+type _result struct {
+	Result string `json:"result"`
 }
 
 // NewShortenerAPI constructs a new ShortenerAPI,
@@ -42,6 +51,7 @@ func (sh *ShortenerAPI) endpoints() {
 	for _, m := range sh.middls {
 		sh.router.Use(m)
 	}
+	sh.router.HandleFunc("/api/shorten", sh.shortURLJSON).Methods(http.MethodPost)
 	sh.router.HandleFunc("/{id}", sh.originalURL).Methods(http.MethodGet)
 	sh.router.HandleFunc("/", sh.shortURL).Methods(http.MethodPost)
 }
@@ -60,6 +70,33 @@ func (sh *ShortenerAPI) shortURL(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "text/plain")
 	res.WriteHeader(http.StatusCreated)
 	res.Write([]byte(ans))
+}
+
+func (sh *ShortenerAPI) shortURLJSON(res http.ResponseWriter, req *http.Request) {
+	var u _url
+	if err := json.NewDecoder(req.Body).Decode(&u); err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	objPtr, err := NewURLObject(u.URL)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	sh.vault.Add(*objPtr)
+
+	r := _result{
+		Result: sh.base + "/" + objPtr.ShortURL,
+	}
+
+	res.Header().Set("Content-Type", "application/json")
+	res.WriteHeader(http.StatusCreated)
+	if err := json.NewEncoder(res).Encode(&r); err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		return
+	}
 }
 
 func (sh *ShortenerAPI) originalURL(res http.ResponseWriter, req *http.Request) {
