@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/AlekseyAytov/go-url-shortener/internal/app"
+	"github.com/AlekseyAytov/go-url-shortener/internal/compress"
 	"github.com/AlekseyAytov/go-url-shortener/internal/config"
 	"github.com/AlekseyAytov/go-url-shortener/internal/logger"
 	"go.uber.org/zap"
@@ -14,7 +15,10 @@ func main() {
 	c := config.LoadOptions()
 	// fmt.Printf("%q\n%q\n", c.BaseURL, c.SrvAdress)
 
-	mw := []func(http.Handler) http.Handler{logger.RequestLogger}
+	mw := []func(http.Handler) http.Handler{
+		logger.RequestLogger,
+		compress.GzipHandle,
+	}
 
 	v := app.GetVault()
 	api := app.NewShortenerAPI(v, c.BaseURL, mw)
