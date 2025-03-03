@@ -23,6 +23,11 @@ func GzipHandle(next http.Handler) http.Handler {
 			return
 		}
 
+		if c := r.Header.Get("Content-Type"); c != "application/json" && c != "text/html" {
+			next.ServeHTTP(w, r)
+			return
+		}
+
 		// создаём gzip.Writer поверх текущего w
 		gz, err := gzip.NewWriterLevel(w, gzip.BestSpeed)
 		if err != nil {
