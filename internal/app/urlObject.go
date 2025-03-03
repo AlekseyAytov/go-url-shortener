@@ -15,11 +15,8 @@ const allowedSimbols = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234
 
 // NewURLObject create a URLObject with BaseURL=s and generate ShortURL
 func NewURLObject(s string) (*URLObject, error) {
-	_, err := url.Parse(s)
-	// if err != nil || u.Host == "" || u.Scheme == "" {
-	// 	return nil, fmt.Errorf("error validate url")
-	// }
-	if err != nil {
+	u, err := url.Parse(s)
+	if err != nil || u.Host == "" || u.Scheme == "" {
 		return nil, fmt.Errorf("error validate url")
 	}
 	res := URLObject{}
