@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/AlekseyAytov/go-url-shortener/internal/storage/filestorage"
+	"github.com/AlekseyAytov/go-url-shortener/internal/urlobject"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -14,7 +16,8 @@ import (
 var api *ShortenerAPI
 
 func TestMain(m *testing.M) {
-	v := GetVault()
+	storage := filestorage.NewFileStorage("")
+	v := urlobject.GetVault(storage)
 	api = NewShortenerAPI(v, "http://127.0.0.1", nil)
 	m.Run()
 }
@@ -91,9 +94,9 @@ func TestShortenerAPI_shortURL(t *testing.T) {
 }
 
 func TestShortenerAPI_originalURL(t *testing.T) {
-	obj1, err := NewURLObject("http://google.com")
+	obj1, err := urlobject.NewURLObject("http://google.com")
 	require.NoError(t, err)
-	obj2, err := NewURLObject("http://ya.ru")
+	obj2, err := urlobject.NewURLObject("http://ya.ru")
 	require.NoError(t, err)
 
 	api.vault.Add(*obj1)

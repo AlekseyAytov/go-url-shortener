@@ -17,8 +17,9 @@ func (w compressWriter) Write(b []byte) (int, error) {
 	return w.Writer.Write(b)
 }
 
-func GzipHandle(next http.Handler) http.Handler {
+func GzipMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// если клиент отправил сжатые данные, то подменить request body
 		if e := r.Header.Get("Content-Encoding"); strings.Contains(e, "gzip") {
 			gz, err := gzip.NewReader(r.Body)
 			if err != nil {
@@ -29,6 +30,7 @@ func GzipHandle(next http.Handler) http.Handler {
 			r.Body = gz
 		}
 
+		// если клиент не поддерживает сжатие, то обработать стандартно
 		if e := r.Header.Get("Accept-Encoding"); e == "" {
 			next.ServeHTTP(w, r)
 			return
