@@ -7,11 +7,17 @@ import (
 	"github.com/caarlos0/env/v11"
 )
 
+// Options является структурой для парсинга настроек из переменных окружения
 type Options struct {
-	SrvAdress string `env:"SERVER_ADDRESS"`
-	BaseURL   string `env:"BASE_URL"`
+	SrvAdress   string `env:"SERVER_ADDRESS"`
+	BaseURL     string `env:"BASE_URL"`
+	StoragePath string `env:"FILE_STORAGE_PATH"`
 }
 
+// LoadOptions пробует:
+// - спарсить настройки из переменных окружения
+// - пустые значения взять из флагов
+// - если значений нет, назначить по умолчанию
 func LoadOptions() *Options {
 	cfg := Options{}
 
@@ -20,16 +26,18 @@ func LoadOptions() *Options {
 		log.Fatal(err)
 	}
 
-	srvAdressFlag := flag.String("a", ":8080", "server socket")
-	baseURLflag := flag.String("b", "http://localhost:8080", "base address")
 	flag.Parse()
 
 	if cfg.SrvAdress == "" {
-		cfg.SrvAdress = *srvAdressFlag
+		cfg.SrvAdress = flagServerSocket
 	}
 
 	if cfg.BaseURL == "" {
-		cfg.BaseURL = *baseURLflag
+		cfg.BaseURL = flagServerBaseURL
+	}
+
+	if cfg.StoragePath == "" {
+		cfg.StoragePath = flagFileStoragePath
 	}
 	return &cfg
 }

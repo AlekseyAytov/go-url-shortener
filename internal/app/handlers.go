@@ -7,13 +7,14 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/AlekseyAytov/go-url-shortener/internal/urlobject"
 	"github.com/gorilla/mux"
 )
 
 var ErrNotFoundValue = errors.New("value not found")
 
 type ShortenerAPI struct {
-	vault  *Vault
+	vault  *urlobject.Vault
 	router *mux.Router
 	base   string
 	middls []func(http.Handler) http.Handler
@@ -29,7 +30,7 @@ type _result struct {
 
 // NewShortenerAPI constructs a new ShortenerAPI,
 // ensuring that the dependencies are valid values
-func NewShortenerAPI(v *Vault, b string, middleWares []func(http.Handler) http.Handler) *ShortenerAPI {
+func NewShortenerAPI(v *urlobject.Vault, b string, middleWares []func(http.Handler) http.Handler) *ShortenerAPI {
 	if v == nil || b == "" {
 		panic("nil Vault!")
 	}
@@ -59,7 +60,7 @@ func (sh *ShortenerAPI) endpoints() {
 func (sh *ShortenerAPI) shortURL(res http.ResponseWriter, req *http.Request) {
 	body, _ := io.ReadAll(req.Body)
 	long := string(body)
-	obj, err := NewURLObject(long)
+	obj, err := urlobject.NewURLObject(long)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
@@ -79,7 +80,7 @@ func (sh *ShortenerAPI) shortURLJSON(res http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	objPtr, err := NewURLObject(u.URL)
+	objPtr, err := urlobject.NewURLObject(u.URL)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
@@ -106,7 +107,7 @@ func (sh *ShortenerAPI) originalURL(res http.ResponseWriter, req *http.Request) 
 		http.Error(res, ErrNotFoundValue.Error(), http.StatusInternalServerError)
 	}
 
-	u, ok := sh.vault.Find(id, func(u URLObject, s string) bool {
+	u, ok := sh.vault.Find(id, func(u urlobject.URLObject, s string) bool {
 		return strings.Contains(u.ShortURL, s)
 	})
 	if ok {

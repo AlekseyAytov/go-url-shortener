@@ -1,14 +1,17 @@
-package app
+package urlobject
 
 import (
 	"fmt"
 	"math/rand/v2"
 	"net/url"
+
+	"github.com/google/uuid"
 )
 
 type URLObject struct {
-	OriginURL string
-	ShortURL  string
+	ID        string `json:"id"`
+	OriginURL string `json:"originURL"`
+	ShortURL  string `json:"shortURL"`
 }
 
 const allowedSimbols = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
@@ -20,6 +23,7 @@ func NewURLObject(s string) (*URLObject, error) {
 		return nil, fmt.Errorf("error validate url")
 	}
 	res := URLObject{}
+	res.ID = uuid.NewString()
 	res.OriginURL = s
 	res.generateShortURL(7)
 
