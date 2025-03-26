@@ -35,8 +35,9 @@ func main() {
 		zap.String("socket", c.SrvAdress),
 	)
 
-	l.Fatal(
-		"server closed",
-		zap.Error(http.ListenAndServe(c.SrvAdress, api.Router())),
-	)
+	http.ListenAndServe(c.SrvAdress, api.Router())
+	// l.Fatal(
+	// 	"server closed",
+	// 	zap.Error(http.ListenAndServe(c.SrvAdress, api.Router())),
+	// )
 }
