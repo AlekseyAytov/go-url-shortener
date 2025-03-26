@@ -18,10 +18,6 @@ func NewDBStorage(dbDSN string) (*DBStorage, error) {
 		return nil, err
 	}
 	result := &DBStorage{db: db}
-	err = result.CheckDB()
-	if err != nil {
-		return nil, err
-	}
 	return result, nil
 }
 
