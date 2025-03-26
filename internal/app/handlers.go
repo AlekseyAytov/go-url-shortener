@@ -52,8 +52,9 @@ func (sh *ShortenerAPI) endpoints() {
 	for _, m := range sh.middls {
 		sh.router.Use(m)
 	}
-	sh.router.HandleFunc("/api/shorten", sh.shortURLJSON).Methods(http.MethodPost)
+	sh.router.HandleFunc("/ping", sh.pingStorage).Methods(http.MethodGet)
 	sh.router.HandleFunc("/{id}", sh.originalURL).Methods(http.MethodGet)
+	sh.router.HandleFunc("/api/shorten", sh.shortURLJSON).Methods(http.MethodPost)
 	sh.router.HandleFunc("/", sh.shortURL).Methods(http.MethodPost)
 }
 
@@ -116,4 +117,13 @@ func (sh *ShortenerAPI) originalURL(res http.ResponseWriter, req *http.Request) 
 	} else {
 		http.Error(res, ErrNotFoundValue.Error(), http.StatusInternalServerError)
 	}
+}
+
+func (sh *ShortenerAPI) pingStorage(res http.ResponseWriter, req *http.Request) {
+	err := sh.vault.CheckStorage()
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	res.WriteHeader(http.StatusOK)
 }

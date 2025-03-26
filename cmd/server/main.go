@@ -7,7 +7,7 @@ import (
 	"github.com/AlekseyAytov/go-url-shortener/internal/compress"
 	"github.com/AlekseyAytov/go-url-shortener/internal/config"
 	"github.com/AlekseyAytov/go-url-shortener/internal/logger"
-	"github.com/AlekseyAytov/go-url-shortener/internal/storage/filestorage"
+	"github.com/AlekseyAytov/go-url-shortener/internal/storage/db"
 	"github.com/AlekseyAytov/go-url-shortener/internal/urlobject"
 	"go.uber.org/zap"
 )
@@ -22,7 +22,11 @@ func main() {
 		compress.GzipMiddleware,
 	}
 
-	storage := filestorage.NewFileStorage(c.StoragePath)
+	// storage := filestorage.NewFileStorage(c.StoragePath)
+	storage, err := db.NewDbStorage(c.DatabaseDSN)
+	if err != nil {
+		l.Fatal("error connection to db")
+	}
 	v := urlobject.GetVault(storage)
 	api := app.NewShortenerAPI(v, c.BaseURL, mw)
 

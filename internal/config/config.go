@@ -12,6 +12,7 @@ type Options struct {
 	SrvAdress   string `env:"SERVER_ADDRESS"`
 	BaseURL     string `env:"BASE_URL"`
 	StoragePath string `env:"FILE_STORAGE_PATH"`
+	DatabaseDSN string `env:"DATABASE_DSN"`
 }
 
 // LoadOptions пробует:
@@ -38,6 +39,10 @@ func LoadOptions() *Options {
 
 	if cfg.StoragePath == "" {
 		cfg.StoragePath = flagFileStoragePath
+	}
+
+	if cfg.DatabaseDSN == "" {
+		cfg.DatabaseDSN = flagDatabaseDSN
 	}
 	return &cfg
 }

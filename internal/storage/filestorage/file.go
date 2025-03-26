@@ -16,6 +16,10 @@ func NewFileStorage(fileName string) *FileStorage {
 	return &FileStorage{fileName: fileName}
 }
 
+func (s *FileStorage) CheckDB() error {
+	return nil
+}
+
 func (s *FileStorage) SaveObject(u urlobject.URLObject) error {
 	if s.fileName == "" {
 		return nil

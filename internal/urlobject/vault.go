@@ -3,6 +3,7 @@ package urlobject
 type PersistentStorage interface {
 	SaveObject(URLObject) error
 	ReadObjects() ([]URLObject, error)
+	CheckDB() error
 }
 
 type Vault struct {
@@ -35,4 +36,8 @@ func (v *Vault) Find(search string, checker func(URLObject, string) bool) (*URLO
 		}
 	}
 	return &URLObject{}, false
+}
+
+func (v *Vault) CheckStorage() error {
+	return v.storage.CheckDB()
 }
