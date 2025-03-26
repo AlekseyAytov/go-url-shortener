@@ -23,7 +23,7 @@ func main() {
 	}
 
 	// storage := filestorage.NewFileStorage(c.StoragePath)
-	storage, err := db.NewDbStorage(c.DatabaseDSN)
+	storage, err := db.NewDBStorage(c.DatabaseDSN)
 	if err != nil {
 		l.Fatal("error connection to db")
 	}

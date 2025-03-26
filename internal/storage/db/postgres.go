@@ -8,16 +8,16 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-type DbStorage struct {
+type DBStorage struct {
 	db *sql.DB
 }
 
-func NewDbStorage(dbDSN string) (*DbStorage, error) {
+func NewDBStorage(dbDSN string) (*DBStorage, error) {
 	db, err := sql.Open("pgx", dbDSN)
 	if err != nil {
 		return nil, err
 	}
-	result := &DbStorage{db: db}
+	result := &DBStorage{db: db}
 	err = result.CheckDB()
 	if err != nil {
 		return nil, err
@@ -25,7 +25,7 @@ func NewDbStorage(dbDSN string) (*DbStorage, error) {
 	return result, nil
 }
 
-func (d *DbStorage) CheckDB() error {
+func (d *DBStorage) CheckDB() error {
 	err := d.db.PingContext(context.TODO())
 	if err != nil {
 		return err
@@ -33,10 +33,10 @@ func (d *DbStorage) CheckDB() error {
 	return nil
 }
 
-func (d *DbStorage) SaveObject(urlobject.URLObject) error {
+func (d *DBStorage) SaveObject(urlobject.URLObject) error {
 	return nil
 }
 
-func (d *DbStorage) ReadObjects() ([]urlobject.URLObject, error) {
+func (d *DBStorage) ReadObjects() ([]urlobject.URLObject, error) {
 	return nil, nil
 }
